@@ -43,7 +43,7 @@
 - **Language**: Java 11
 - **Framework** : Spring boot 2.7.13
 - **BuildTool** : Gradle 7.6.1
-- **Database** : AWS RDS (MySQL)
+- **Database** : AWS RDS(MySQL)
 - **ORM** : JPA(Hibernate)
 
 </br>
