@@ -24,18 +24,17 @@
 
 </br>
 
-### ⭐ 담당 기능
+### ⭐ My Implementation
 #### 회원 인증 
-- 회원 인증 후 JWT를 통한 인가 부여
-- 모든 REST API 요청 시 Filter를 통해 JWT 검사 후 회원 인증 수행
-- 로그인 되어있는 회원의 AccessToken 만료 시 RefreshToken 검증 후 재발급
+- SpringSecurity, JWT를 이용한 회원 인가 기능 구현
+- JWT Authentication Filter를 통한 회원 인증 로직 구현
 #### 채팅 기능
-- Spring Boot STOMP(Simple Text Oriented Messaging Protocol)를
-  이용한 실시간 채팅 기능 구현
-- FCM 통한 채팅 알림 기능 구현
-- STOMP 및 FCM을 통한 통신 시에도 JWT를 사용하여 회원 인증 수행
+- Spring Boot STOMP(Simple Text Oriented Messaging Protocol)를 통한 실시간 채팅 기능 구현
+- FCM 통한 실시간 채팅 알림 기능 구현
+- REST API 외 STOMP, FCM을 통해 이뤄지는 모든 통신 과정에 JWT 회원 인증 적용
 #### 공통 기능
-- Global Exception 처리를 통한 서버 공통 예외 처리 구현 
+- Global Exception 처리를 통한 공통 예외 처리 구현
+- 공통 Response 객체 포맷 적용
 
 </br>
 
