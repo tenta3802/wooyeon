@@ -27,7 +27,7 @@
 ### ⭐ My Implementation
 #### 회원 인증 
 - SpringSecurity, JWT를 이용한 회원 인증 및 인가 기능 구현
-- JWT Authentication Filter를 통한 회원 인증 로직 구현
+- JWT Authentication Filter를 통한 회원 검증 로직 구현
 #### 채팅 기능
 - Spring Boot STOMP(Simple Text Oriented Messaging Protocol)를 통한 실시간 채팅 기능 구현
 - FCM 통한 실시간 채팅 알림 기능 구현
