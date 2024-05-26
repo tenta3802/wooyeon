@@ -24,7 +24,7 @@
 
 </br>
 
-### ⭐ Assigned Function
+### ⭐ 담당 기능
 #### 회원 인증 
 - 회원 인증 후 JWT를 통한 인가 부여
 - 모든 REST API 요청 시 Filter를 통해 JWT 검사 후 회원 인증 수행
