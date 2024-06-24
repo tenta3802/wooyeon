@@ -109,23 +109,26 @@ public class RoomService {
         User loginUser = userRepository.findOptionalByEmail(securityService.getCurrentUserEmail())
                 .orElseThrow(() -> new WooyeonException(ExceptionCode.USER_NOT_FOUND));
 
-        List<RoomDto.SearchRoomResponse> searchRoomList = new ArrayList<>();
-
-        // 이름이 같은 사람 조회 후 추가
         List<UserMatch> userMatchList = matchRepository.findAllByUser1OrUser2(loginUser, loginUser);
 
-        if (0 < userMatchList.size() && !userMatchList.isEmpty()) {
+        return makeSearchRoomList(loginUser, userMatchList, searchWord);
+    }
+
+    private List<RoomDto.SearchRoomResponse> makeSearchRoomList(User loginUser, List<UserMatch> userMatchList, String searchWord) {
+
+        List<RoomDto.SearchRoomResponse> searchRoomList = new ArrayList<>();
+
+        if (false == ObjectUtils.isEmpty(userMatchList)) {
             for (UserMatch userMatch : userMatchList) {
 
                 Long matchUserId = getMatchUserId(userMatch, loginUser);
 
-                User matchUser = userRepository.findOptionalByUserId(matchUserId)
-                        .orElseThrow(() -> new WooyeonException(ExceptionCode.USER_NOT_FOUND));
-
-                // 상대방 프로필 정보 조회
                 Optional<Profile> profile = Optional.empty();
                 Optional<ProfilePhoto> profilePhoto = Optional.empty();
                 String matchUserNickname = null;
+
+                User matchUser = userRepository.findOptionalByUserId(matchUserId)
+                        .orElseThrow(() -> new WooyeonException(ExceptionCode.USER_NOT_FOUND));
 
                 if (null != matchUser.getUserProfile()) {
                     profile = profileRepository.findById(matchUser.getUserProfile().getId());
@@ -134,24 +137,26 @@ public class RoomService {
                 }
 
                 if (null != searchWord && null != matchUserNickname && matchUserNickname.contains(searchWord)) {
-                    RoomDto.SearchRoomResponse response = RoomDto.SearchRoomResponse.builder()
-                            .matchId(matchUserId)
-                            .name(matchUserNickname)
-                            .build();
-
-                    if (profile.isPresent()) {
-                        response = RoomDto.updateProfile(response, profile.get());
-                    }
-
-                    if (profilePhoto.isPresent()) {
-                        response = RoomDto.updateProfilePhoto(response, profilePhoto.get());
-                    }
-
-                    searchRoomList.add(response);
+                    searchRoomList.add(makeSearchRoomInfo(matchUserId, matchUserNickname, profile, profilePhoto));
                 }
             }
         }
-
         return searchRoomList;
+    }
+
+    private RoomDto.SearchRoomResponse makeSearchRoomInfo(Long matchUserId, String matchUserNickname,
+                                                          Optional<Profile> profile, Optional<ProfilePhoto> profilePhoto) {
+        RoomDto.SearchRoomResponse searchRoomInfo = RoomDto.SearchRoomResponse.builder()
+                .matchId(matchUserId)
+                .name(matchUserNickname)
+                .build();
+
+        if (profile.isPresent()) {
+            searchRoomInfo = RoomDto.updateProfile(searchRoomInfo, profile.get());
+        }
+        if (profilePhoto.isPresent()) {
+            searchRoomInfo = RoomDto.updateProfilePhoto(searchRoomInfo, profilePhoto.get());
+        }
+        return searchRoomInfo;
     }
 }
