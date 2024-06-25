@@ -45,53 +45,65 @@ public class StompController {
 
     @MessageMapping("/chat/message")
     public void enter(StompDto stompDto, @Header("Authorization") String token) {
+
         Authentication authentication = jwtTokenProvider.getAuthentication(token.substring(7));
         String loginEmail = authentication.getName();
         Long roomId = stompDto.getRoomId();
 
         if (stompDto.getType().equals(StompDto.MessageType.ENTER.toString())) {
-            if (!sessionStore.containsKey(roomId.toString()) || "0".equals(sessionStore.get(roomId.toString()))) {
-                sessionStore.put(roomId.toString(), "1");
-            } else if ("1".equals(sessionStore.get(roomId.toString()))) {
-                sessionStore.put(roomId.toString(), "2");
-            }
-            log.info("session count = " + sessionStore.get(roomId.toString()));
+            plusSessionCount(roomId);
         }
-
         if (stompDto.getType().equals(StompDto.MessageType.TALK.toString())) {
-
-            User loginUser = userRepository.findOptionalByEmail(loginEmail)
-                    .orElseThrow(() -> new WooyeonException(ExceptionCode.LOGIN_USER_NOT_FOUND));
-
-            StompResDto stompRes = StompResDto.builder()
-                    .message(stompDto.getMessage())
-                    .sendTime(LocalDateTime.now())
-                    .senderToken(loginUser.getAccessToken())
-                    .build();
-
-            simpMessageSendingOperations.convertAndSend("/queue/chat/room/" + stompDto.getRoomId(), stompRes);
-
-            chatService.saveChat(stompDto, sessionStore, loginEmail);
-            log.info("채팅 전송 완료");
+            sendMessage(loginEmail, stompDto);
         }
-
         if (stompDto.getType().equals(StompDto.MessageType.QUIT.toString())) {
-            String sessionCount = sessionStore.get(roomId.toString());
-            int count = Integer.parseInt(sessionCount);
-            count -= 1;
-            sessionStore.put(roomId.toString(), String.valueOf(count));
-            log.info("session count = " + sessionStore.get(roomId.toString()));
+            minusSessionCount(roomId);
         }
-
         if (stompDto.getType().equals(StompDto.MessageType.TALK.toString()) &&
                 "1".equals(sessionStore.get(roomId.toString()))) {
-            log.info("session count = " + sessionStore.get(roomId.toString()));
+            sendFcmMessage(roomId, stompDto, loginEmail);
+        }
+    }
+
+    private void plusSessionCount(Long roomId) {
+        if (!sessionStore.containsKey(roomId.toString()) || "0".equals(sessionStore.get(roomId.toString()))) {
+            sessionStore.put(roomId.toString(), "1");
+        } else if ("1".equals(sessionStore.get(roomId.toString()))) {
+            sessionStore.put(roomId.toString(), "2");
+        }
+        log.info("session count = " + sessionStore.get(roomId.toString()));
+    }
+
+    private void sendMessage(String loginEmail, StompDto stompDto) {
+        User loginUser = userRepository.findOptionalByEmail(loginEmail)
+                .orElseThrow(() -> new WooyeonException(ExceptionCode.LOGIN_USER_NOT_FOUND));
+
+        StompResDto stompRes = StompResDto.builder()
+                .message(stompDto.getMessage())
+                .sendTime(LocalDateTime.now())
+                .senderToken(loginUser.getAccessToken())
+                .build();
+
+        simpMessageSendingOperations.convertAndSend("/queue/chat/room/" + stompDto.getRoomId(), stompRes);
+
+        chatService.saveChat(stompDto, sessionStore, loginEmail);
+        log.info("채팅 전송 완료");
+    }
+
+    private void minusSessionCount(Long roomId) {
+        int count = Integer.parseInt(sessionStore.get(roomId.toString()));
+        sessionStore.put(roomId.toString(), String.valueOf(--count));
+
+        log.info("session count = " + sessionStore.get(roomId.toString()));
+    }
+
+    private void sendFcmMessage(Long roomId, StompDto stompDto, String loginEmail) {
+        log.info("session count = " + sessionStore.get(roomId.toString()));
+        try {
+            fcmService.sendMessageTo(FcmDto.buildRequest(loginEmail, stompDto, roomId, userRepository, matchRepository));
             log.info("FCM 메시지 전송함");
-            try {
-                fcmService.sendMessageTo(FcmDto.buildRequest(loginEmail, stompDto, roomId, userRepository, matchRepository));
-            } catch (IOException e) {
-                throw new WooyeonException(ExceptionCode.FCM_SEND_FAIL_ERROR);
-            }
+        } catch (IOException e) {
+            throw new WooyeonException(ExceptionCode.FCM_SEND_FAIL_ERROR);
         }
     }
 }
