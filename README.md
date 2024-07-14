@@ -47,6 +47,13 @@
 
 </br>
 
+### 🗂️ ERD
+<p float="left">
+    <img width="804" alt="스크린샷 2024-07-14 오후 9 40 56" src="https://github.com/user-attachments/assets/551013ba-6368-4b7a-831b-c5c0e4b44db6">
+</p>
+
+</br>
+
 ### ⚒ CI/CD
 -  Docker & Jenkins를 활용한 지속적 통합 및 배포
 -  각각의 `feature` 브랜치에서 `develop` 브랜치로 Pull Request 후 Merge 하면 CI 동작
