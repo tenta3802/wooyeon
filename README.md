@@ -58,3 +58,16 @@
 -  Docker & Jenkins를 활용한 지속적 통합 및 배포
 -  각각의 `feature` 브랜치에서 `develop` 브랜치로 Pull Request 후 Merge 하면 CI 동작
 -  CI 완료 후 Jenkins를 통해 운영 리소스에 배포
+
+</br>
+
+### ✏️ Commit Covention
+- `FEAT` : 새로운 기능 추가 </br>
+- `FIX` : 버그 수정 </br>
+- `DOCS` : 문서 수정 </br>
+- `STYLE` : 코드 포맷팅, 세미콜론 누락, 코드 변경이 없는 경우 </br>
+- `REFCTOR` : 코드 리펙토링 </br>
+- `TEST` : 테스트 코드, 리펙토링 테스트 코드 추가 </br>
+- `BUILD` : 빌드 파일 및 관련 업무 수정 </br>
+- `CHORE` : 자잘한 수정
+
